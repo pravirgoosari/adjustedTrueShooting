@@ -1,0 +1,8 @@
+Flask
+pandas
+basketball-reference-web-scraper
+gunicorn
+scikit-learn
+numpy
+requests
+urllib3
