@@ -38,3 +38,45 @@ class AdjustedTrueShooting:
         if fga + (0.44 * fta) == 0:
             return 0.0
         return points / (2 * (fga + 0.44 * fta))
+    
+    def calculate_adjusted_ts_percentage(self, player_stats):
+        """
+        Calculate aTS% for a player using the 50% usage, 50% spacing formula
+        
+        Formula: aTS% = TS% + (Usage Factor × 0.5) + (Spacing Factor × 0.5)
+        """
+        # Extract player stats
+        points = player_stats['points']
+        fga = player_stats['fga']
+        fta = player_stats['fta']
+        games = player_stats['games']
+        team_3pa_per_game = player_stats['team_3pa_per_game']
+        team_3pt_percentage = player_stats['team_3pt_percentage']
+        
+        # Calculate base metrics
+        usage_rate = self.calculate_usage_rate(points, fga, fta, games)
+        spacing_score = self.calculate_spacing_score(team_3pa_per_game, team_3pt_percentage)
+        ts_percentage = self.calculate_true_shooting_percentage(points, fga, fta)
+        
+        # Calculate adjustment factors
+        # Usage factor: higher usage = positive adjustment (more impressive)
+        usage_factor = (usage_rate - 0.25) * 0.1  # Normalize around 25% usage
+        
+        # Spacing factor: better spacing = negative adjustment (less impressive)
+        spacing_factor = (0.5 - spacing_score) * 0.05  # Normalize around 0.5 spacing
+        
+        adjustment = (usage_factor * 0.5) + (spacing_factor * 0.5)
+        
+        # Calculate final aTS%
+        adjusted_ts = ts_percentage + adjustment
+        
+        return {
+            'player_name': player_stats.get('player_name', 'Unknown'),
+            'actual_ts': ts_percentage,
+            'usage_rate': usage_rate,
+            'spacing_score': spacing_score,
+            'usage_factor': usage_factor,
+            'spacing_factor': spacing_factor,
+            'adjustment': adjustment,
+            'adjusted_ts': adjusted_ts
+        }
