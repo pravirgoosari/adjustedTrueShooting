@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+from basketball_reference_web_scraper import client
+from basketball_reference_web_scraper.data import OutputType
 
 class AdjustedTrueShooting:
     """
@@ -80,3 +82,56 @@ class AdjustedTrueShooting:
             'adjustment': adjustment,
             'adjusted_ts': adjusted_ts
         }
+    
+    def scrape_player_stats(self, season=2023):
+        """Scrape player statistics using basketball-reference-web-scraper"""
+        try:
+            print(f"Scraping {season} NBA season stats...")
+            
+            # Get player stats per game
+            player_stats = client.players_season_totals(season=season)
+            
+            # Convert to DataFrame
+            df = pd.DataFrame(player_stats)
+            
+            # Rename columns to match our expected format
+            df = df.rename(columns={
+                'name': 'player_name',
+                'team': 'team',
+                'games_played': 'games',
+                'points': 'points',
+                'field_goal_attempts': 'fga',
+                'free_throw_attempts': 'fta'
+            })
+            
+            print(f"Scraped {len(df)} players")
+            return df
+            
+        except Exception as e:
+            print(f"Error scraping player stats: {str(e)}")
+            return None
+    
+    def scrape_team_spacing(self, season=2023):
+        """Scrape team 3-point shooting statistics"""
+        try:
+            print(f"Scraping {season} team spacing stats...")
+            
+            # Get team stats
+            team_stats = client.teams_season_stats(season=season)
+            
+            # Convert to DataFrame
+            df = pd.DataFrame(team_stats)
+            
+            # Calculate 3-point metrics
+            df['team_3pa_per_game'] = df['three_point_field_goal_attempts'] / df['games_played']
+            df['team_3pt_percentage'] = df['three_point_field_goals'] / df['three_point_field_goal_attempts']
+            
+            # Rename columns
+            df = df.rename(columns={'name': 'team'})
+            
+            print(f"Scraped {len(df)} teams")
+            return df
+            
+        except Exception as e:
+            print(f"Error scraping team stats: {str(e)}")
+            return None
