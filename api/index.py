@@ -135,3 +135,119 @@ class AdjustedTrueShooting:
         except Exception as e:
             print(f"Error scraping team stats: {str(e)}")
             return None
+    
+    def aggregate_player_stats(self, player_df):
+        """
+        Aggregate player statistics for traded players
+        
+        Args:
+            player_df (DataFrame): Raw player stats with potential duplicates for traded players
+        """
+        print("Aggregating player stats for traded players...")
+        
+        # Group by player name and aggregate stats
+        aggregated = player_df.groupby('player_name').agg({
+            'team': lambda x: ' / '.join(x.unique()),  # Show all teams played for
+            'games': 'sum',  # Total games across all teams
+            'points': 'sum',  # Total points across all teams
+            'fga': 'sum',     # Total field goal attempts
+            'fta': 'sum'      # Total free throw attempts
+        }).reset_index()
+        
+        # Filter out players with insufficient data
+        aggregated = aggregated[
+            (aggregated['games'] >= 10) &  # At least 10 games played
+            (aggregated['fga'] > 0)        # Must have field goal attempts
+        ]
+        
+        print(f"Aggregated {len(aggregated)} players (min 10 games)")
+        return aggregated
+    
+    def merge_player_team_data(self, player_df, team_df):
+        """
+        Merge player stats with team spacing data
+        
+        Args:
+            player_df (DataFrame): Aggregated player statistics
+            team_df (DataFrame): Team spacing statistics
+        """
+        print("Merging player and team data...")
+        
+        # Create a mapping for team spacing data
+        # For traded players, we'll use a weighted average based on games played per team
+        merged_data = []
+        
+        for _, player in player_df.iterrows():
+            # Get all teams this player played for
+            teams = player['team'].split(' / ')
+            
+            if len(teams) == 1:
+                # Single team - easy case
+                team_data = team_df[team_df['team'] == teams[0]]
+                if not team_data.empty:
+                    merged_data.append({
+                        'player_name': player['player_name'],
+                        'team': player['team'],
+                        'games': player['games'],
+                        'points': player['points'],
+                        'fga': player['fga'],
+                        'fta': player['fta'],
+                        'team_3pa_per_game': team_data.iloc[0]['team_3pa_per_game'],
+                        'team_3pt_percentage': team_data.iloc[0]['team_3pt_percentage']
+                    })
+            else:
+                # Multiple teams - need weighted average
+                # For now, use simple average (can be improved later)
+                team_spacing_data = []
+                for team in teams:
+                    team_data = team_df[team_df['team'] == team]
+                    if not team_data.empty:
+                        team_spacing_data.append({
+                            'team_3pa_per_game': team_data.iloc[0]['team_3pa_per_game'],
+                            'team_3pt_percentage': team_data.iloc[0]['team_3pt_percentage']
+                        })
+                
+                if team_spacing_data:
+                    avg_3pa = np.mean([t['team_3pa_per_game'] for t in team_spacing_data])
+                    avg_3pt = np.mean([t['team_3pt_percentage'] for t in team_spacing_data])
+                    
+                    merged_data.append({
+                        'player_name': player['player_name'],
+                        'team': player['team'],
+                        'games': player['games'],
+                        'points': player['points'],
+                        'fga': player['fga'],
+                        'fta': player['fta'],
+                        'team_3pa_per_game': avg_3pa,
+                        'team_3pt_percentage': avg_3pt
+                    })
+        
+        result_df = pd.DataFrame(merged_data)
+        print(f"Successfully merged data for {len(result_df)} players")
+        return result_df
+    
+    def get_complete_dataset(self, season=2023):
+        """
+        Get complete dataset: scrape, aggregate, and merge data
+        
+        Args:
+            season (int): NBA season year
+        """
+        print(f"Building complete dataset for {season} season...")
+        
+        # Step 1: Scrape data
+        player_df = self.scrape_player_stats(season)
+        team_df = self.scrape_team_spacing(season)
+        
+        if player_df is None or team_df is None:
+            print("Failed to scrape data")
+            return None
+        
+        # Step 2: Aggregate player stats
+        aggregated_players = self.aggregate_player_stats(player_df)
+        
+        # Step 3: Merge with team data
+        complete_dataset = self.merge_player_team_data(aggregated_players, team_df)
+        
+        print(f"Complete dataset ready with {len(complete_dataset)} players")
+        return complete_dataset
