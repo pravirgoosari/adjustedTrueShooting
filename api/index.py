@@ -11,13 +11,53 @@ class AdjustedTrueShooting:
     def __init__(self):
         pass
         
-    def calculate_usage_rate(self, points, fga, fta, games):
-        """
-        Calculate usage rate: (Points + FGA - FTA) / (Games × 100)
-        """
-        if games == 0:
-            return 0.0
-        return (points + fga - fta) / (games * 100)
+    def calculate_ts_percentage(self, points, fga, fta):
+        """Calculate True Shooting Percentage"""
+        if fga > 0 and fta > 0:
+            return (points / (2 * (fga + (0.44 * fta)))) * 100
+        return 0
+    
+    def calculate_usage_rate(self, points, fga, fta, gp):
+        """Calculate Usage Rate"""
+        if gp > 0:
+            return ((points + fga - fta) / (gp * 100)) * 100
+        return 0
+    
+    def get_team_abbreviation(self, team_name):
+        """Convert full team name to abbreviation"""
+        team_mapping = {
+            'ATLANTA HAWKS': 'ATL',
+            'BOSTON CELTICS': 'BOS',
+            'BROOKLYN NETS': 'BKN',
+            'CHARLOTTE HORNETS': 'CHA',
+            'CHICAGO BULLS': 'CHI',
+            'CLEVELAND CAVALIERS': 'CLE',
+            'DALLAS MAVERICKS': 'DAL',
+            'DENVER NUGGETS': 'DEN',
+            'DETROIT PISTONS': 'DET',
+            'GOLDEN STATE WARRIORS': 'GSW',
+            'HOUSTON ROCKETS': 'HOU',
+            'INDIANA PACERS': 'IND',
+            'LOS ANGELES CLIPPERS': 'LAC',
+            'LOS ANGELES LAKERS': 'LAL',
+            'MEMPHIS GRIZZLIES': 'MEM',
+            'MIAMI HEAT': 'MIA',
+            'MILWAUKEE BUCKS': 'MIL',
+            'MINNESOTA TIMBERWOLVES': 'MIN',
+            'NEW ORLEANS PELICANS': 'NOP',
+            'NEW YORK KNICKS': 'NYK',
+            'OKLAHOMA CITY THUNDER': 'OKC',
+            'ORLANDO MAGIC': 'ORL',
+            'PHILADELPHIA 76ERS': 'PHI',
+            'PHOENIX SUNS': 'PHX',
+            'PORTLAND TRAIL BLAZERS': 'POR',
+            'SACRAMENTO KINGS': 'SAC',
+            'SAN ANTONIO SPURS': 'SAS',
+            'TORONTO RAPTORS': 'TOR',
+            'UTAH JAZZ': 'UTA',
+            'WASHINGTON WIZARDS': 'WAS'
+        }
+        return team_mapping.get(team_name, team_name)
     
     def calculate_spacing_score(self, team_3pa_per_game, team_3pt_percentage):
         """
@@ -32,14 +72,6 @@ class AdjustedTrueShooting:
         # Geometric mean for spacing score
         spacing_score = np.sqrt(normalized_3pa * normalized_3pt)
         return spacing_score
-    
-    def calculate_true_shooting_percentage(self, points, fga, fta):
-        """
-        Calculate traditional True Shooting Percentage
-        """
-        if fga + (0.44 * fta) == 0:
-            return 0.0
-        return points / (2 * (fga + 0.44 * fta))
     
     def calculate_adjusted_ts_percentage(self, player_stats):
         """
@@ -58,7 +90,7 @@ class AdjustedTrueShooting:
         # Calculate base metrics
         usage_rate = self.calculate_usage_rate(points, fga, fta, games)
         spacing_score = self.calculate_spacing_score(team_3pa_per_game, team_3pt_percentage)
-        ts_percentage = self.calculate_true_shooting_percentage(points, fga, fta)
+        ts_percentage = self.calculate_ts_percentage(points, fga, fta)
         
         # Calculate adjustment factors
         # Usage factor: higher usage = positive adjustment (more impressive)
