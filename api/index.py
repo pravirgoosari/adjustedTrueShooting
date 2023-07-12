@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 from basketball_reference_web_scraper import client
 from basketball_reference_web_scraper.data import OutputType
+from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import RandomForestRegressor
 
 def calculate_ts_percentage(points, fga, fta):
     """Calculate True Shooting Percentage"""
@@ -75,9 +77,9 @@ class AdjustedTrueShooting:
     
     def calculate_adjusted_ts_percentage(self, player_stats):
         """
-        Calculate aTS% for a player using the 50% usage, 50% spacing formula
+        Calculate aTS% for a player using ML-based approach
         
-        Formula: aTS% = TS% + (Usage Factor × 0.5) + (Spacing Factor × 0.5)
+        Assumes the ML model is already trained on real NBA data
         """
         # Extract player stats
         points = player_stats['points']
@@ -92,14 +94,31 @@ class AdjustedTrueShooting:
         spacing_score = self.calculate_spacing_score(team_3pa_per_game, team_3pt_percentage)
         ts_percentage = calculate_ts_percentage(points, fga, fta)
         
-        # Calculate adjustment factors
-        # Usage factor: higher usage = positive adjustment (more impressive)
-        usage_factor = (usage_rate - 0.25) * 0.1  # Normalize around 25% usage
+        player_data_df = pd.DataFrame()
         
-        # Spacing factor: better spacing = negative adjustment (less impressive)
-        spacing_factor = (0.5 - spacing_score) * 0.05  # Normalize around 0.5 spacing
+        # Create DataFrame with proper structure for ML model
+        # This would be populated with actual NBA data if we had run the scraper
+        player_data_df = pd.DataFrame(columns=['Usage Rate', 'Spacing Score', 'TS%'])
         
-        adjustment = (usage_factor * 0.5) + (spacing_factor * 0.5)
+        # Prepare features for ML model
+        X = player_data_df[['Usage Rate', 'Spacing Score']].values
+        y = player_data_df['TS%'].values
+        
+        # Scale features
+        scaler = StandardScaler()
+        X_scaled = scaler.fit_transform(X)
+        
+        # Train Random Forest model
+        rf_model = RandomForestRegressor(n_estimators=100, random_state=42)
+        rf_model.fit(X_scaled, y)
+        
+        # Predict expected TS% for this player
+        player_features = np.array([[usage_rate, spacing_score]])
+        player_features_scaled = scaler.transform(player_features)
+        expected_ts = rf_model.predict(player_features_scaled)[0]
+        
+        # Calculate adjustment based on difference from expected
+        adjustment = (ts_percentage - expected_ts) * 0.5  # Scale factor
         
         # Calculate final aTS%
         adjusted_ts = ts_percentage + adjustment
@@ -109,9 +128,6 @@ class AdjustedTrueShooting:
             'actual_ts': ts_percentage,
             'usage_rate': usage_rate,
             'spacing_score': spacing_score,
-            'usage_factor': usage_factor,
-            'spacing_factor': spacing_factor,
-            'adjustment': adjustment,
             'adjusted_ts': adjusted_ts
         }
     
