@@ -1,10 +1,13 @@
 import pandas as pd
+from flask import Flask
 from basketball_reference_web_scraper import client
 from basketball_reference_web_scraper.data import OutputType
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestRegressor
 import numpy as np
 from . import utils
+
+app = Flask(__name__)
 
 # Set display options
 pd.set_option('display.max_columns', None)
@@ -198,8 +201,15 @@ def get_season_data(season_end_year=2023):
         # Return a placeholder DataFrame with error message
         return pd.DataFrame(utils.create_error_dataframe(season_end_year, "Data Unavailable"))
 
+@app.route('/')
+def index():
+    """Return 2023 season aTS% data"""
+    try:
+        data_2023 = get_season_data(2023)
+        return f"2023 Season aTS% Data:\n{data_2023.to_string()}"
+    except Exception as e:
+        return f"Error: {str(e)}"
+
 if __name__ == '__main__':
-    # Get 2023 season data
-    data_2023 = get_season_data(2023)
-    print("2023 Season aTS% Data:")
-    print(data_2023.head(10)) 
+    # Run the Flask app
+    app.run(debug=True) 
