@@ -1,5 +1,5 @@
 import pandas as pd
-from flask import Flask
+from flask import Flask, render_template
 from basketball_reference_web_scraper import client
 from basketball_reference_web_scraper.data import OutputType
 from sklearn.preprocessing import StandardScaler
@@ -7,7 +7,7 @@ from sklearn.ensemble import RandomForestRegressor
 import numpy as np
 from . import utils
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='templates', static_folder='static')
 
 # Set display options
 pd.set_option('display.max_columns', None)
@@ -203,12 +203,14 @@ def get_season_data(season_end_year=2023):
 
 @app.route('/')
 def index():
-    """Return 2023 season aTS% data"""
+    """Return 2023 season aTS% data as HTML"""
     try:
         data_2023 = get_season_data(2023)
-        return f"2023 Season aTS% Data:\n{data_2023.to_string()}"
+        # Convert DataFrame to list of dictionaries for Jinja2 template
+        season_data = data_2023.to_dict('records')
+        return render_template('index.html', season_data=season_data)
     except Exception as e:
-        return f"Error: {str(e)}"
+        return render_template('index.html', error=str(e))
 
 if __name__ == '__main__':
     # Run the Flask app

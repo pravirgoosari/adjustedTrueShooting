@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adjusted True Shooting Percentage (aTS%) Calculator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='atsstyle.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏀 aTS% Calculator</h1>
+            <p>Adjusted True Shooting Percentage - Advanced Basketball Analytics</p>
+        </div>
+
+        {% if season_data %}
+            <div class="stats-summary">
+                <div class="stat-card">
+                    <h3>Total Players</h3>
+                    <div class="value">{{ season_data|length }}</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Season</h3>
+                    <div class="value">2023</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Data Source</h3>
+                    <div class="value">Basketball Reference</div>
+                </div>
+            </div>
+
+            <div class="data-container">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Player</th>
+                                <th>Team</th>
+                                <th>Season</th>
+                                <th>PPG</th>
+                                <th>aTS%</th>
+                                <th>TS%</th>
+                                <th>DIFF</th>
+                                <th>Usage Rate</th>
+                                <th>Team 3PT%</th>
+                                <th>Team 3PA</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for player in season_data %}
+                            <tr>
+                                <td><strong>{{ player.Player }}</strong></td>
+                                <td>{{ player.Team }}</td>
+                                <td>{{ player.Season }}</td>
+                                <td>{{ player.PPG }}</td>
+                                <td><strong>{{ player['aTS%'] }}</strong></td>
+                                <td>{{ player['TS%'] }}</td>
+                                <td class="{% if player.DIFF > 0 %}positive{% elif player.DIFF < 0 %}negative{% else %}neutral{% endif %}">
+                                    {% if player.DIFF > 0 %}+{% endif %}{{ player.DIFF }}
+                                </td>
+                                <td>{{ player['Usage Rate'] }}</td>
+                                <td>{{ player['Team 3PT%'] }}</td>
+                                <td>{{ player['Team 3PA'] }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% else %}
+            <div class="loading">
+                <h2>Loading 2023 Season Data...</h2>
+                <p>Scraping Basketball Reference and calculating aTS% values...</p>
+            </div>
+        {% endif %}
+
+        {% if error %}
+            <div class="error">
+                <h3>Error Loading Data</h3>
+                <p>{{ error }}</p>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
