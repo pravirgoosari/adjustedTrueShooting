@@ -23,44 +23,40 @@
                     <h3>Season</h3>
                     <div class="value">2023</div>
                 </div>
-                <div class="stat-card">
-                    <h3>Data Source</h3>
-                    <div class="value">Basketball Reference</div>
-                </div>
             </div>
 
             <div class="data-container">
                 <div class="table-container">
-                    <table>
+                    <table id="playerDataTable" class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Player</th>
-                                <th>Team</th>
-                                <th>Season</th>
-                                <th>PPG</th>
-                                <th>aTS%</th>
-                                <th>TS%</th>
-                                <th>DIFF</th>
-                                <th>Usage Rate</th>
-                                <th>Team 3PT%</th>
-                                <th>Team 3PA</th>
+                                <th onclick="sortTable(0)">Player</th>
+                                <th onclick="sortTable(1)">Team</th>
+                                <th onclick="sortTable(2)">Season</th>
+                                <th onclick="sortTable(3)">PPG</th>
+                                <th onclick="sortTable(4)">aTS%</th>
+                                <th onclick="sortTable(5)">TS%</th>
+                                <th onclick="sortTable(6)">DIFF</th>
+                                <th onclick="sortTable(7)">Usage Rate</th>
+                                <th onclick="sortTable(8)">Team 3PT%</th>
+                                <th onclick="sortTable(9)">Team 3PA</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            {% for player in season_data %}
-                            <tr>
-                                <td><strong>{{ player.Player }}</strong></td>
-                                <td>{{ player.Team }}</td>
-                                <td>{{ player.Season }}</td>
-                                <td>{{ player.PPG }}</td>
-                                <td><strong>{{ player['aTS%'] }}</strong></td>
-                                <td>{{ player['TS%'] }}</td>
-                                <td class="{% if player.DIFF > 0 %}positive{% elif player.DIFF < 0 %}negative{% else %}neutral{% endif %}">
-                                    {% if player.DIFF > 0 %}+{% endif %}{{ player.DIFF }}
+                        <tbody id="playerTableBody">
+                            {% for index, row in season_data.iterrows() %}
+                            <tr class="season-data" data-season="2023">
+                                <td>{{ row['Player'] }}</td>
+                                <td>{{ row['Team'] }}</td>
+                                <td>{{ row['Season'] }}</td>
+                                <td>{{ row['PPG'] }}</td>
+                                <td>{{ row['aTS%'] }}</td>
+                                <td>{{ row['TS%'] }}</td>
+                                <td class="{% if row['DIFF'] > 0 %}positive{% elif row['DIFF'] < 0 %}negative{% else %}neutral{% endif %}">
+                                    {% if row['DIFF'] > 0 %}+{% endif %}{{ row['DIFF'] }}
                                 </td>
-                                <td>{{ player['Usage Rate'] }}</td>
-                                <td>{{ player['Team 3PT%'] }}</td>
-                                <td>{{ player['Team 3PA'] }}</td>
+                                <td>{{ row['Usage Rate'] }}</td>
+                                <td>{{ row['Team 3PT%'] }}</td>
+                                <td>{{ row['Team 3PA'] }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -70,7 +66,7 @@
         {% else %}
             <div class="loading">
                 <h2>Loading 2023 Season Data...</h2>
-                <p>Scraping Basketball Reference and calculating aTS% values...</p>
+                <p>Calculating aTS% values...</p>
             </div>
         {% endif %}
 
@@ -81,5 +77,61 @@
             </div>
         {% endif %}
     </div>
+
+    <script>
+        // Function to sort the table
+        function sortTable(n) {
+            const table = document.getElementById("playerDataTable");
+            const tbody = table.getElementsByTagName("tbody")[0];
+            const rows = Array.from(tbody.getElementsByTagName("tr"));
+            
+            let dir = "asc";
+            const currentHeader = table.getElementsByTagName("th")[n];
+            
+            // Toggle direction based on current state (stored in data attribute)
+            if (currentHeader.getAttribute('data-dir') === 'asc') {
+                dir = "desc";
+            }
+            
+            // Update direction state
+            const headers = table.getElementsByTagName("th");
+            for (let i = 0; i < headers.length; i++) {
+                headers[i].removeAttribute('data-dir');
+            }
+            currentHeader.setAttribute('data-dir', dir);
+            
+            // Sort the rows
+            rows.sort((a, b) => {
+                let aVal = a.getElementsByTagName("td")[n].textContent.trim();
+                let bVal = b.getElementsByTagName("td")[n].textContent.trim();
+                
+                // Convert to numbers for numeric columns (PPG, aTS%, TS%, DIFF, Usage Rate, Team 3PT%, Team 3PA)
+                if (n >= 3 && n <= 9) {  // These are the numeric columns
+                    aVal = parseFloat(aVal) || 0;  // Use 0 if parsing fails
+                    bVal = parseFloat(bVal) || 0;
+                }
+                
+                // Compare values
+                if (dir === "asc") {
+                    if (typeof aVal === 'number') {
+                        return aVal - bVal;  // Numeric comparison
+                    }
+                    return aVal.localeCompare(bVal);  // String comparison
+                } else {
+                    if (typeof aVal === 'number') {
+                        return bVal - aVal;  // Numeric comparison
+                    }
+                    return bVal.localeCompare(aVal);  // String comparison
+                }
+            });
+            
+            // Reorder the rows in the tbody and update colors
+            rows.forEach((row, index) => {
+                tbody.appendChild(row);
+                // Update row colors
+                row.style.backgroundColor = index % 2 === 0 ? '#fff' : '#f8f9fa';
+            });
+        }
+    </script>
 </body>
 </html>
