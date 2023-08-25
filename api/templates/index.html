@@ -2,93 +2,85 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adjusted True Shooting Percentage (aTS%) Calculator</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='atsstyle.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Adjusted True Shooting</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
+    <!-- Link to CSS file and fonts-->
+    <link rel="stylesheet" href="{{ url_for('static', filename='atsstyle.css', v=1) }}">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>aTS% Calculator</h1>
-            <p>Adjusted True Shooting Percentage - Advanced Basketball Analytics</p>
+    <div class="container mt-5">
+        <div class="navbar">
+            <div class="nav-left">
+                <ul>
+                    <li><a href="#" class="active" onclick="showPage('dataPage')">aTS% DATA</a></li>
+                    <li><a href="#" onclick="showPage('aboutATSPage')">ABOUT aTS%</a></li>
+                    <li><a href="#" onclick="showPage('aboutDevelopmentPage')">ABOUT DEVELOPMENT</a></li>
+                    <li><a href="#" onclick="showPage('aboutMePage')">ABOUT ME</a></li>
+                </ul>
+            </div>
+            <div class="nav-right">
+                <a href="https://www.linkedin.com/in/pravirgoosari/" target="_blank" class="linkedin-button">LINKEDIN</a>
+                <a href="https://github.com/pravirgoosari" target="_blank" class="github-button">GITHUB</a>
+            </div>
         </div>
 
-        <!-- Navigation -->
-        <div class="nav-tabs">
-            <button class="nav-tab active" onclick="showPage('dataPage')">Data</button>
-            <button class="nav-tab" onclick="showPage('aboutATSPage')">About aTS%</button>
-            <button class="nav-tab" onclick="showPage('aboutDevelopmentPage')">Development</button>
-            <button class="nav-tab" onclick="showPage('aboutMePage')">About Me</button>
-        </div>
-
-        <!-- Data Page -->
+        <!-- Content for the "Data" page -->
         <div id="dataPage" class="page-content">
-            {% if season_data %}
-                <div class="stats-summary">
-                    <div class="stat-card">
-                        <h3>Total Players</h3>
-                        <div class="value">{{ season_data|length }}</div>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Season</h3>
-                        <div class="value">2023</div>
-                    </div>
+            <div class="page-title">
+                <h1>ADJUSTED TRUE SHOOTING</h1>
+            </div>
+            <div class="season-selector">
+                <span class="season-label">SEASON:</span>
+                <select id="seasonSelect" onchange="showSeasonData(this.value)">
+                    <option value="2023">2023</option>
+                </select>
+            </div>
+            <div class="table-container">
+                <!-- Display the DataFrame as an HTML table -->
+                <div class="table-scroll">
+                    <table id="playerDataTable" class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th onclick="sortTable(0)">Player</th>
+                                <th onclick="sortTable(1)">Team</th>
+                                <th onclick="sortTable(2)">Season</th>
+                                <th onclick="sortTable(3)">PPG</th>
+                                <th onclick="sortTable(4)">aTS%</th>
+                                <th onclick="sortTable(5)">TS%</th>
+                                <th onclick="sortTable(6)">DIFF</th>
+                                <th onclick="sortTable(7)">Usage Rate</th>
+                                <th onclick="sortTable(8)">Team 3PT%</th>
+                                <th onclick="sortTable(9)">Team 3PA</th>
+                            </tr>
+                        </thead>
+                        <tbody id="playerTableBody">
+                            {% for index, row in season_data.iterrows() %}
+                            <tr class="season-data" data-season="2023">
+                                <td>{{ row['Player'] }}</td>
+                                <td>{{ row['Team'] }}</td>
+                                <td>{{ row['Season'] }}</td>
+                                <td>{{ row['PPG'] }}</td>
+                                <td>{{ row['aTS%'] }}</td>
+                                <td>{{ row['TS%'] }}</td>
+                                <td>{{ row['DIFF'] }}</td>
+                                <td>{{ row['Usage Rate'] }}</td>
+                                <td>{{ row['Team 3PT%'] }}</td>
+                                <td>{{ row['Team 3PA'] }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
-
-                <div class="data-container">
-                    <div class="table-container">
-                        <table id="playerDataTable" class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th onclick="sortTable(0)">Player</th>
-                                    <th onclick="sortTable(1)">Team</th>
-                                    <th onclick="sortTable(2)">Season</th>
-                                    <th onclick="sortTable(3)">PPG</th>
-                                    <th onclick="sortTable(4)">aTS%</th>
-                                    <th onclick="sortTable(5)">TS%</th>
-                                    <th onclick="sortTable(6)">DIFF</th>
-                                    <th onclick="sortTable(7)">Usage Rate</th>
-                                    <th onclick="sortTable(8)">Team 3PT%</th>
-                                    <th onclick="sortTable(9)">Team 3PA</th>
-                                </tr>
-                            </thead>
-                            <tbody id="playerTableBody">
-                                {% for index, row in season_data.iterrows() %}
-                                <tr class="season-data" data-season="2023">
-                                    <td>{{ row['Player'] }}</td>
-                                    <td>{{ row['Team'] }}</td>
-                                    <td>{{ row['Season'] }}</td>
-                                    <td>{{ row['PPG'] }}</td>
-                                    <td>{{ row['aTS%'] }}</td>
-                                    <td>{{ row['TS%'] }}</td>
-                                    <td class="{% if row['DIFF'] > 0 %}positive{% elif row['DIFF'] < 0 %}negative{% else %}neutral{% endif %}">
-                                        {% if row['DIFF'] > 0 %}+{% endif %}{{ row['DIFF'] }}
-                                    </td>
-                                    <td>{{ row['Usage Rate'] }}</td>
-                                    <td>{{ row['Team 3PT%'] }}</td>
-                                    <td>{{ row['Team 3PA'] }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            {% else %}
-                <div class="loading">
-                    <h2>Loading 2023 Season Data...</h2>
-                    <p>Calculating aTS% values...</p>
-                </div>
-            {% endif %}
-
-            {% if error %}
-                <div class="error">
-                    <h3>Error Loading Data</h3>
-                    <p>{{ error }}</p>
-                </div>
-            {% endif %}
+            </div>
         </div>
 
-        <!-- About aTS% Page -->
+        <!-- Content for other pages -->
         <div id="aboutATSPage" class="info-content" style="display: none;">
             <h1>ABOUT aTS%</h1>
             <div class="info-text">
@@ -104,7 +96,6 @@
             </div>
         </div>
 
-        <!-- About Development Page -->
         <div id="aboutDevelopmentPage" class="info-content" style="display: none;">
             <h1>ABOUT DEVELOPMENT</h1>
             <div class="info-text">
@@ -116,13 +107,13 @@
                     <li>Random Forest model that learns from historical NBA data</li>
                     <li>Composite spacing score using geometric mean of 3PT% and 3PA</li>
                     <li>Feature scaling to ensure fair comparison across metrics</li>
+                    <li>Automated data pipeline for multiple NBA seasons</li>
                 </ul>
 
                 <p>The frontend provides an intuitive interface to explore these advanced analytics, with dynamic sorting and filtering capabilities. All calculations are performed server-side for consistency and reliability.</p>
             </div>
         </div>
 
-        <!-- About Me Page -->
         <div id="aboutMePage" class="info-content" style="display: none;">
             <h1>ABOUT ME</h1>
             <div class="info-text">
@@ -136,11 +127,33 @@
     </div>
 
     <script>
+        // Function to show the selected season's data
+        function showSeasonData(season) {
+            // Show/hide table rows and update row colors
+            let visibleRowCount = 0;
+            document.querySelectorAll('.season-data').forEach(row => {
+                if (row.getAttribute('data-season') === season) {
+                    row.style.display = '';
+                    // Update row colors based on visible row count
+                    if (visibleRowCount % 2 === 0) {
+                        row.style.backgroundColor = '#fff';
+                    } else {
+                        row.style.backgroundColor = '#f8f9fa';
+                    }
+                    visibleRowCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
         // Function to sort the table
         function sortTable(n) {
             const table = document.getElementById("playerDataTable");
             const tbody = table.getElementsByTagName("tbody")[0];
-            const rows = Array.from(tbody.getElementsByTagName("tr"));
+            const rows = Array.from(tbody.getElementsByTagName("tr")).filter(row => 
+                row.style.display !== 'none' && row.classList.contains('season-data')
+            );
             
             let dir = "asc";
             const currentHeader = table.getElementsByTagName("th")[n];
@@ -190,19 +203,24 @@
             });
         }
 
-        // Function to show a specific page
+        // Function to show the selected page and hide others
         function showPage(pageId) {
-            const pages = document.querySelectorAll('.page-content, .info-content');
-            pages.forEach(page => {
-                page.style.display = 'none';
-            });
-
-            const activeTab = document.querySelector('.nav-tab.active');
-            activeTab.classList.remove('active');
-
-            document.getElementById(pageId).style.display = 'block';
-            document.querySelector(`.nav-tab[onclick="showPage('${pageId}')"]`).classList.add('active');
+            var pages = ["dataPage", "aboutATSPage", "aboutDevelopmentPage", "aboutMePage"];
+            for (var i = 0; i < pages.length; i++) {
+                var page = document.getElementById(pages[i]);
+                if (pages[i] === pageId) {
+                    page.style.display = "block";
+                } else {
+                    page.style.display = "none";
+                }
+            }
         }
+
+        // Show the default page (Data) when the page loads
+        window.onload = function () {
+            showPage("dataPage");
+            showSeasonData("2023"); // Show 2023 season by default
+        };
     </script>
 </body>
-</html>
+</html> 
