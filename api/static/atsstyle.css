@@ -1,246 +1,432 @@
-/* aTS% Calculator Styles */
-* {
+/* Apply background styles to the body element */
+body {
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-    color: #333;
+    background: #fff;
+    color: #000;
     min-height: 100vh;
-}
-
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-.header {
-    text-align: center;
-    margin-bottom: 30px;
-    color: white;
-}
-
-.header h1 {
-    font-size: 2.5rem;
-    margin-bottom: 10px;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-}
-
-.header p {
-    font-size: 1.1rem;
-    opacity: 0.9;
-}
-
-/* Navigation Tabs */
-.nav-tabs {
+   }
+   
+   * {
+    margin: 0;
+    padding: 0;
+    font-family: 'Space Grotesk', sans-serif;
+    box-sizing: border-box;
+   }
+   
+   .container {
+    flex: 1;
     display: flex;
-    justify-content: center;
-    margin-bottom: 30px;
-    background: white;
-    border-radius: 10px;
-    padding: 5px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-}
-
-.nav-tab {
-    background: none;
-    border: none;
-    padding: 12px 24px;
-    margin: 0 5px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 1rem;
-    font-weight: 500;
-    color: #666;
-    transition: all 0.3s ease;
-}
-
-.nav-tab:hover {
-    background: #f0f0f0;
-    color: #333;
-}
-
-.nav-tab.active {
-    background: #2a5298;
-    color: white;
-}
-
-/* Page Content */
-.page-content, .info-content {
-    display: block;
-}
-
-.info-content {
-    background: white;
-    border-radius: 15px;
-    padding: 40px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-}
-
-.info-content h1 {
-    color: #2a5298;
-    margin-bottom: 25px;
-    font-size: 2.2rem;
-    text-align: center;
-}
-
-.info-text {
-    line-height: 1.7;
-    font-size: 1.1rem;
-}
-
-.info-text p {
-    margin-bottom: 20px;
-}
-
-.feature-list {
-    margin: 20px 0;
-    padding-left: 20px;
-}
-
-.feature-list li {
-    margin-bottom: 12px;
-    line-height: 1.6;
-}
-
-.data-container {
-    background: white;
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    overflow: hidden;
-    margin-bottom: 30px;
-}
-
-.table-container {
-    overflow-x: auto;
-}
-
-table {
+    flex-direction: column;
+   }
+   
+   .banner {
     width: 100%;
+    padding: 35px 0;
+    display: flex;
+    align-items: center;
+   }
+   
+   .logo {
+    width: 50px;
+    cursor: pointer;
+   }
+   
+   .navbar {
+    margin-top: 0;
+    padding: 15px 40px;
+    background-color: #2B3647;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+   }
+   
+   .nav-left {
+    display: flex;
+    align-items: center;
+   }
+   
+   .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+   }
+   
+   .navbar ul {
+    display: flex;
+    margin: 0;
+    padding: 0;
+   }
+   
+   .navbar ul li {
+    list-style: none;
+    display: inline-block;
+    margin: 0 30px 0 0;
+    position: relative;
+   }
+   
+   .navbar ul li:last-child {
+    margin-right: 0;
+   }
+   
+   .navbar ul li a {
+    text-decoration: none;
+    color: #fff;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 500;
+    white-space: nowrap;
+   }
+   
+   .navbar ul li::after {
+    content: '';
+    height: 3px;
+    width: 0;
+    background: #fff;
+    position: absolute;
+    left: 0;
+    bottom: -3px;
+    transition: 0.5s;
+   }
+   
+   .navbar ul li:hover::after {
+    width: 100%;
+   }
+   
+   .buttons {
+    padding-right: 40px;
+    display: flex;
+    gap: 10px;
+   }
+   
+   /* Center the table horizontally on the "Data" page */
+   .table-container {
+    text-align: center;
+    margin: 25px auto;
+    width: 95%;
+    max-width: 1200px;
+    padding: 0 20px;
+   }
+   
+   .table-scroll {
+    border: 1px solid #eee;
+    border-radius: 8px;
+    height: 492px; /* Adjusted to show exactly 10 rows */
+    overflow-y: auto;
+   }
+   
+   #playerDataTable {
+    text-transform: uppercase;
     border-collapse: collapse;
-    font-size: 0.9rem;
-}
-
-thead {
-    background: linear-gradient(90deg, #2a5298, #1e3c72);
-    color: white;
-}
-
-th, td {
+    width: 100%;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+   }
+   
+   #playerDataTable th,
+   #playerDataTable td {
     padding: 12px 15px;
     text-align: left;
     border-bottom: 1px solid #eee;
-}
-
-th {
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    height: 24px; /* Fixed height for each row */
+    line-height: 24px; /* Matching line height */
+   }
+   
+   #playerDataTable thead th {
+    height: 48px; /* Fixed height for header */
+    line-height: 24px;
+   }
+   
+   /* Make column headers bold and sticky */
+   #playerDataTable th {
+    font-weight: 500;
+    position: sticky;
+    top: 0;
+    background-color: #2B3647;
+    color: #fff;
     cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-
-th:hover {
-    background-color: rgba(255,255,255,0.1);
-}
-
-tr:hover {
+    user-select: none;
+    transition: background-color 0.3s;
+    z-index: 1;
+   }
+   
+   #playerDataTable th:hover {
+    background-color: #374459;
+   }
+   
+   #playerDataTable tr:nth-child(even) {
     background-color: #f8f9fa;
-}
-
-.positive {
-    color: #28a745;
-    font-weight: 600;
-}
-
-.negative {
-    color: #dc3545;
-    font-weight: 600;
-}
-
-.neutral {
-    color: #6c757d;
-}
-
-.loading {
-    text-align: center;
-    padding: 40px;
-    color: #666;
-}
-
-.error {
-    background: #f8d7da;
-    color: #721c24;
-    padding: 20px;
-    border-radius: 8px;
-    text-align: center;
-    margin: 20px 0;
-}
-
-.stats-summary {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
-}
-
-.stat-card {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    text-align: center;
-}
-
-.stat-card h3 {
-    color: #2a5298;
-    margin-bottom: 10px;
-    font-size: 1.1rem;
-}
-
-.stat-card .value {
-    font-size: 2rem;
-    font-weight: bold;
-    color: #1e3c72;
-}
-
-@media (max-width: 768px) {
-    .container {
-        padding: 10px;
-    }
-    
-    .header h1 {
-        font-size: 2rem;
-    }
-    
-    .nav-tabs {
-        flex-direction: column;
-        align-items: center;
-    }
-    
-    .nav-tab {
-        margin: 2px 0;
-        width: 100%;
-        text-align: center;
-    }
-    
-    .info-content {
-        padding: 20px;
-    }
-    
-    .info-content h1 {
-        font-size: 1.8rem;
-    }
-    
-    table {
-        font-size: 0.8rem;
-    }
-    
-    th, td {
-        padding: 8px 10px;
-    }
-}
+   }
+   
+   #playerDataTable tr:nth-child(odd) {
+    background-color: #fff;
+   }
+   
+   /* Common title styling for all pages */
+   .page-title, .info-content h1 {
+       text-align: center;
+       margin: 35px 0;  /* Match the spacing we just set for the main title */
+   }
+   
+   .page-title h1, .info-content h1 {
+       color: #2B3647;
+       font-size: clamp(24px, 5vw, 36px);
+   }
+   
+   /* Styles for the data page */
+   .data-content {
+       text-align: center;
+       line-height: 1.5;
+       margin: 0 auto;
+       max-width: 60%;
+       color: #2B3647;
+   }
+   
+   /* Content container for info pages */
+   .info-content {
+       max-width: 1000px;
+       margin: 0 auto;
+       padding: 0;
+       display: flex;
+       flex-direction: column;
+       align-items: center;
+   }
+   
+   .info-content h1 {
+       color: #2B3647;
+       font-size: 36px;
+       font-weight: 700;
+       margin: 35px 0 30px 0;
+       text-align: center;
+   }
+   
+   .info-text {
+       width: 95%;
+       max-width: 800px;
+       margin: 0 auto;
+       padding: 0 20px;
+   }
+   
+   .info-text p {
+       color: #2B3647;
+       font-size: 16px;
+       line-height: 1.6;
+       margin-bottom: 24px;
+       text-align: justify;
+       letter-spacing: 0.2px;
+   }
+   
+   .feature-list {
+       list-style: none;
+       padding: 0;
+       margin: 20px 0 30px 0;
+   }
+   
+   .feature-list li {
+       position: relative;
+       padding-left: 20px;
+       margin-bottom: 12px;
+       color: #2B3647;
+       line-height: 1.6;
+   }
+   
+   .feature-list li::before {
+       content: "";
+       position: absolute;
+       left: 0;
+       top: 8px;
+       width: 6px;
+       height: 6px;
+       border-radius: 50%;
+       background-color: #0077b5;
+   }
+   
+   .feature-list li strong {
+       font-weight: 500;
+   }
+   
+   /* Button Styles */
+   .linkedin-button,
+   .github-button {
+       display: inline-block;
+       padding: 8px 20px;
+       color: #fff;
+       text-decoration: none;
+       border-radius: 5px;
+       font-weight: 500;
+       transition: background-color 0.3s;
+   }
+   
+   .linkedin-button {
+       background-color: #0077b5;
+   }
+   
+   .github-button {
+       background-color: #333;
+   }
+   
+   .linkedin-button:hover {
+       background-color: #006396;
+   }
+   
+   .github-button:hover {
+       background-color: #24292e;
+   }
+   
+   /* Season selector styles */
+   .season-selector {
+       display: flex;
+       justify-content: center;
+       align-items: center;
+       gap: 10px;
+       margin: 20px 0;
+       font-size: 18px;
+   }
+   
+   .season-label {
+       color: #2B3647;
+       font-weight: 500;
+   }
+   
+   #seasonSelect {
+       padding: 6px 30px 6px 12px;
+       font-size: 16px;
+       border: 1px solid #ddd;
+       border-radius: 5px;
+       background-color: white;
+       color: #2B3647;
+       cursor: pointer;
+       font-family: 'Space Grotesk', sans-serif;
+       font-weight: 500;
+       appearance: none;
+       -webkit-appearance: none;
+       -moz-appearance: none;
+       background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232B3647' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+       background-repeat: no-repeat;
+       background-position: right 8px center;
+       background-size: 14px;
+   }
+   
+   #seasonSelect:hover {
+       border-color: #bbb;
+   }
+   
+   #seasonSelect:focus {
+       outline: none;
+       border-color: #bbb;
+       box-shadow: 0 0 0 1px rgba(43, 54, 71, 0.1);
+   }
+   
+   /* Remove old season button styles */
+   .season-btn,
+   .season-btn:hover,
+   .season-btn.active {
+       display: none;
+   }
+   
+   .sort-icon {
+    display: inline-block;
+    margin-left: 5px;
+    font-size: 0.8em;
+    opacity: 0.5;
+   }
+   
+   #playerDataTable th:hover .sort-icon {
+    opacity: 1;
+   }
+   
+   /* Media Queries */
+   @media screen and (max-width: 768px) {
+       .navbar {
+           padding: 10px 15px;
+           flex-direction: column;
+           gap: 15px;
+       }
+   
+       .nav-left ul {
+           flex-direction: column;
+           align-items: center;
+           gap: 10px;
+       }
+   
+       .nav-left ul li {
+           margin: 0;
+       }
+   
+       .nav-right {
+           width: 100%;
+           justify-content: center;
+       }
+   
+       .table-container {
+           padding: 0 10px;
+           margin: 15px auto;
+       }
+   
+       .table-scroll {
+           height: auto;
+           max-height: 70vh;
+       }
+   
+       #playerDataTable {
+           font-size: 14px;
+       }
+   
+       #playerDataTable th,
+       #playerDataTable td {
+           padding: 8px;
+       }
+   
+       /* Make the table horizontally scrollable on mobile */
+       .table-scroll {
+           overflow-x: auto;
+           -webkit-overflow-scrolling: touch;
+       }
+   
+       /* Adjust season selector buttons for mobile */
+       .season-selector {
+           display: flex;
+           justify-content: center;
+           gap: 10px;
+           margin: 15px 0;
+       }
+   
+       .season-btn {
+           padding: 8px 15px;
+           font-size: 14px;
+       }
+   
+       /* Adjust content padding for mobile */
+       .info-content {
+           padding: 0 15px;
+       }
+   
+       .info-content p {
+           font-size: 15px;
+           line-height: 1.6;
+       }
+   
+       /* Make sure buttons are easy to tap on mobile */
+       .linkedin-button,
+       .github-button {
+           padding: 8px 15px;
+           font-size: 14px;
+           min-width: 100px;
+           text-align: center;
+       }
+   }
+   
+   /* Additional styles for very small screens */
+   @media screen and (max-width: 480px) {
+       #playerDataTable {
+           font-size: 12px;
+       }
+   
+       #playerDataTable th,
+       #playerDataTable td {
+           padding: 6px;
+       }
+   
+       .page-title h1 {
+           font-size: 24px;
+       }
+   } 
