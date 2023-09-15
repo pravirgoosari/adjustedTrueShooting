@@ -1,29 +1,29 @@
-# Adjusted True Shooting Percentage (aTS%)
+# NBA Adjusted True Shooting (aTS%)
 
-Advanced basketball analytics metric that enhances True Shooting Percentage by accounting for contextual factors:
-
-- **Usage Rate**: How much a player dominates the ball
-- **Team Spacing Quality**: How well the team creates open shots
-
-## Why This Matters
-
-Traditional TS% treats all 60% shooters equally, but aTS% reveals:
-- High-usage players with poor spacing (overperforming)
-- Low-usage players with great spacing (underperforming)
+A machine learning-powered basketball analytics platform that calculates Adjusted True Shooting Percentage (aTS%). This metric enhances traditional TS% by accounting for:
+- Usage Rate (63% influence)
+- Team Spacing Quality (37% influence)
 
 ## Technical Stack
+- Backend: Python/Flask
+- ML: scikit-learn Random Forest
+- Data Processing: pandas, numpy
+- Data Source: basketball-reference-web-scraper
 
-- **Backend**: Python/Flask, scikit-learn
-- **Data**: Basketball Reference scraping
-- **ML**: Random Forest regression for expected TS% prediction
+## Features
+- Random Forest regression model for predicting expected TS%
+- Composite spacing score using geometric mean of 3PT% and 3PA
+- Interactive data exploration across multiple NBA seasons
+- Dynamic sorting and filtering capabilities
 
-## Getting Started
-
+## Development
 ```bash
+python3 -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
-python app.py
+python3 api/index.py
 ```
-
-## License
-
-MIT License
+## Deployment
+- Hosted at [adjustedtrueshooting.com](https://www.adjustedtrueshooting.com/)
+- Used GitHub Actions to containerize and push Docker images to DockerHub
+- Deployed with Azure App Service via automated CI/CD pipeline
