@@ -14,6 +14,9 @@ pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 pd.set_option('display.expand_frame_repr', False)
 
+# Global variable to store season data
+season_data = {}
+
 def calculate_ts_percentage(points, fga, fta):
     """Calculate True Shooting Percentage"""
     if fga > 0 and fta > 0:
@@ -62,7 +65,7 @@ def get_team_abbreviation(team_name):
     }
     return team_mapping.get(team_name, team_name)
 
-def get_season_data(season_end_year=2023):
+def get_season_data(season_end_year):
     """Get player statistics for a specific season with anti-detection measures"""
     try:
         utils.safe_delay()
@@ -201,16 +204,30 @@ def get_season_data(season_end_year=2023):
         # Return a placeholder DataFrame with error message
         return pd.DataFrame(utils.create_error_dataframe(season_end_year, "Data Unavailable"))
 
+def initialize_data():
+    """Initialize data for all seasons with better error handling"""
+    global season_data
+    seasons = [2023, 2024]
+    
+    for season in seasons:
+        try:
+            data = get_season_data(season)
+            
+            if data.empty or len(data) == 1 and data.iloc[0]['Player'] == 'Data Unavailable':
+                # Create a more informative placeholder
+                season_data[str(season)] = pd.DataFrame(utils.create_error_dataframe(season, "Basketball Reference Blocked"))
+            else:
+                season_data[str(season)] = data
+                
+        except Exception as e:
+            # Create error placeholder
+            season_data[str(season)] = pd.DataFrame(utils.create_error_dataframe(season, f"Error: {str(e)[:50]}..."))
+
 @app.route('/')
 def index():
-    """Return 2023 season aTS% data as HTML"""
-    try:
-        data_2023 = get_season_data(2023)
-        # Convert DataFrame to list of dictionaries for Jinja2 template
-        season_data = data_2023.to_dict('records')
-        return render_template('index.html', season_data=season_data)
-    except Exception as e:
-        return render_template('index.html', error=str(e))
+    return render_template('index.html', season_data=season_data)
+
+initialize_data()
 
 if __name__ == '__main__':
     # Run the Flask app

@@ -38,6 +38,7 @@
             <div class="season-selector">
                 <span class="season-label">SEASON:</span>
                 <select id="seasonSelect" onchange="showSeasonData(this.value)">
+                    <option value="2024">2024</option>
                     <option value="2023">2023</option>
                 </select>
             </div>
@@ -60,8 +61,22 @@
                             </tr>
                         </thead>
                         <tbody id="playerTableBody">
-                            {% for index, row in season_data.iterrows() %}
-                            <tr class="season-data" data-season="2023">
+                            {% for index, row in season_data['2024'].iterrows() %}
+                            <tr class="season-data" data-season="2024">
+                                <td>{{ row['Player'] }}</td>
+                                <td>{{ row['Team'] }}</td>
+                                <td>{{ row['Season'] }}</td>
+                                <td>{{ row['PPG'] }}</td>
+                                <td>{{ row['aTS%'] }}</td>
+                                <td>{{ row['TS%'] }}</td>
+                                <td>{{ row['DIFF'] }}</td>
+                                <td>{{ row['Usage Rate'] }}</td>
+                                <td>{{ row['Team 3PT%'] }}</td>
+                                <td>{{ row['Team 3PA'] }}</td>
+                            </tr>
+                            {% endfor %}
+                            {% for index, row in season_data['2023'].iterrows() %}
+                            <tr class="season-data" data-season="2023" style="display: none;">
                                 <td>{{ row['Player'] }}</td>
                                 <td>{{ row['Team'] }}</td>
                                 <td>{{ row['Season'] }}</td>
@@ -219,7 +234,7 @@
         // Show the default page (Data) when the page loads
         window.onload = function () {
             showPage("dataPage");
-            showSeasonData("2023"); // Show 2023 season by default
+            showSeasonData("2024"); // Show 2024 season by default
         };
     </script>
 </body>
