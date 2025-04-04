@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Adjusted True Shooting</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
+    <!-- Link to CSS file and fonts-->
+    <link rel="stylesheet" href="{{ url_for('static', filename='atsstyle.css', v=1) }}">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="navbar">
+            <div class="nav-left">
+                <ul>
+                    <li><a href="#" class="active" onclick="showPage('dataPage')">aTS% DATA</a></li>
+                    <li><a href="#" onclick="showPage('aboutATSPage')">ABOUT aTS%</a></li>
+                    <li><a href="#" onclick="showPage('aboutDevelopmentPage')">ABOUT DEVELOPMENT</a></li>
+                    <li><a href="#" onclick="showPage('aboutMePage')">ABOUT ME</a></li>
+                </ul>
+            </div>
+            <div class="nav-right">
+                <a href="https://www.linkedin.com/in/pravirgoosari/" target="_blank" class="linkedin-button">LINKEDIN</a>
+                <a href="https://github.com/pravirgoosari" target="_blank" class="github-button">GITHUB</a>
+            </div>
+        </div>
+
+        <!-- Content for the "Data" page -->
+        <div id="dataPage" class="page-content">
+            <div class="page-title">
+                <h1>ADJUSTED TRUE SHOOTING</h1>
+            </div>
+            <div class="season-selector">
+                <span class="season-label">SEASON:</span>
+                <select id="seasonSelect" onchange="showSeasonData(this.value)">
+                    <option value="2025">2025</option>
+                    <option value="2024">2024</option>
+                    <option value="2023">2023</option>
+                </select>
+            </div>
+            <div class="table-container">
+                <!-- Display the DataFrame as an HTML table -->
+                <div class="table-scroll">
+                    <table id="playerDataTable" class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th onclick="sortTable(0)">Player</th>
+                                <th onclick="sortTable(1)">Team</th>
+                                <th onclick="sortTable(2)">Season</th>
+                                <th onclick="sortTable(3)">PPG</th>
+                                <th onclick="sortTable(4)">aTS%</th>
+                                <th onclick="sortTable(5)">TS%</th>
+                                <th onclick="sortTable(6)">DIFF</th>
+                                <th onclick="sortTable(7)">Usage Rate</th>
+                                <th onclick="sortTable(8)">Team 3PT%</th>
+                                <th onclick="sortTable(9)">Team 3PA</th>
+                            </tr>
+                        </thead>
+                        <tbody id="playerTableBody">
+                            {% for index, row in season_data['2025'].iterrows() %}
+                            <tr class="season-data" data-season="2025">
+                                <td>{{ row['Player'] }}</td>
+                                <td>{{ row['Team'] }}</td>
+                                <td>{{ row['Season'] }}</td>
+                                <td>{{ row['PPG'] }}</td>
+                                <td>{{ row['aTS%'] }}</td>
+                                <td>{{ row['TS%'] }}</td>
+                                <td>{{ row['DIFF'] }}</td>
+                                <td>{{ row['Usage Rate'] }}</td>
+                                <td>{{ row['Team 3PT%'] }}</td>
+                                <td>{{ row['Team 3PA'] }}</td>
+                            </tr>
+                            {% endfor %}
+                            {% for index, row in season_data['2023'].iterrows() %}
+                            <tr class="season-data" data-season="2023" style="display: none;">
+                                <td>{{ row['Player'] }}</td>
+                                <td>{{ row['Team'] }}</td>
+                                <td>{{ row['Season'] }}</td>
+                                <td>{{ row['PPG'] }}</td>
+                                <td>{{ row['aTS%'] }}</td>
+                                <td>{{ row['TS%'] }}</td>
+                                <td>{{ row['DIFF'] }}</td>
+                                <td>{{ row['Usage Rate'] }}</td>
+                                <td>{{ row['Team 3PT%'] }}</td>
+                                <td>{{ row['Team 3PA'] }}</td>
+                            </tr>
+                            {% endfor %}
+                            {% for index, row in season_data['2024'].iterrows() %}
+                            <tr class="season-data" data-season="2024" style="display: none;">
+                                <td>{{ row['Player'] }}</td>
+                                <td>{{ row['Team'] }}</td>
+                                <td>{{ row['Season'] }}</td>
+                                <td>{{ row['PPG'] }}</td>
+                                <td>{{ row['aTS%'] }}</td>
+                                <td>{{ row['TS%'] }}</td>
+                                <td>{{ row['DIFF'] }}</td>
+                                <td>{{ row['Usage Rate'] }}</td>
+                                <td>{{ row['Team 3PT%'] }}</td>
+                                <td>{{ row['Team 3PA'] }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content for other pages -->
+        <div id="aboutATSPage" class="info-content" style="display: none;">
+            <h1>ABOUT aTS%</h1>
+            <div class="info-text">
+                <p>Adjusted True Shooting (aTS%) is an advanced version of the commonly used True Shooting % (TS%). While TS% offers a solid measure of efficiency, it doesn't account for key factors that impact a player's shooting performance—notably usage rate and team spacing. Higher usage draws more defensive attention and makes shot attempts more difficult, while better team spacing can make shots easier to obtain.</p>
+                
+                <ul class="feature-list">
+                    <li><strong>Usage Rate:</strong> Measures how many possessions a player uses, indicating defensive attention</li>
+                    <li><strong>Team Spacing:</strong> Composite score combining team's three-point volume and efficiency</li>
+                    <li><strong>Machine Learning:</strong> Uses Random Forest regression to learn complex relationships</li>
+                </ul>
+
+                <p>The model predicts an expected TS% based on a player's usage rate and their team's spacing quality. Players who exceed these expectations receive positive adjustments to their aTS%, while those who fall short are penalized. This creates a more nuanced efficiency metric that accounts for both individual role and team context. The model shows that usage rate accounts for roughly 63% of the adjustment, while team spacing contributes about 37%, validating the significant impact of both factors on shooting efficiency.</p>
+            </div>
+        </div>
+
+        <div id="aboutDevelopmentPage" class="info-content" style="display: none;">
+            <h1>ABOUT DEVELOPMENT</h1>
+            <div class="info-text">
+                <p>This project combines modern web development with advanced machine learning to create an interactive platform for basketball analytics. The backend is built using Python and Flask, with data processing handled by pandas and numpy. The statistical engine employs scikit-learn's Random Forest Regressor, which can capture complex non-linear relationships between player usage, team spacing, and shooting efficiency.</p>
+
+                <p>Key technical features include:</p>
+                
+                <ul class="feature-list">
+                    <li>Random Forest model that learns from historical NBA data</li>
+                    <li>Composite spacing score using geometric mean of 3PT% and 3PA</li>
+                    <li>Feature scaling to ensure fair comparison across metrics</li>
+                    <li>Automated data pipeline for multiple NBA seasons</li>
+                </ul>
+
+                <p>The frontend provides an intuitive interface to explore these advanced analytics, with dynamic sorting and filtering capabilities. All calculations are performed server-side for consistency and reliability.</p>
+            </div>
+        </div>
+
+        <div id="aboutMePage" class="info-content" style="display: none;">
+            <h1>ABOUT ME</h1>
+            <div class="info-text">
+                <p>I am a student at the University of Washington pursuing Electrical and Computer Engineering (Class of 2026), where my academic focus intersects perfectly with my passion for basketball analytics. This unique combination of engineering and sports has driven me to develop innovative ways to understand the game through data.</p>
+
+                <p>My journey in basketball analytics has led me to create 'aTS%' (Adjusted True Shooting Percentage), a statistic that redefines how we measure player efficiency by considering usage rate and team spacing. This project represents the perfect blend of my technical skills and basketball knowledge, utilizing machine learning to provide deeper insights into player performance.</p>
+
+                <p>Beyond the technical aspects, I share my basketball insights through 'HoopsLine,' an Instagram page where I combine analytics with creative design to engage with the basketball community. Through this platform, I aim to bridge the gap between traditional basketball knowledge and modern analytical approaches, fostering discussions about the evolving nature of the game.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to show the selected season's data
+        function showSeasonData(season) {
+            // Show/hide table rows and update row colors
+            let visibleRowCount = 0;
+            document.querySelectorAll('.season-data').forEach(row => {
+                if (row.getAttribute('data-season') === season) {
+                    row.style.display = '';
+                    // Update row colors based on visible row count
+                    if (visibleRowCount % 2 === 0) {
+                        row.style.backgroundColor = '#fff';
+                    } else {
+                        row.style.backgroundColor = '#f8f9fa';
+                    }
+                    visibleRowCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // Function to sort the table
+        function sortTable(n) {
+            const table = document.getElementById("playerDataTable");
+            const tbody = table.getElementsByTagName("tbody")[0];
+            const rows = Array.from(tbody.getElementsByTagName("tr")).filter(row => 
+                row.style.display !== 'none' && row.classList.contains('season-data')
+            );
+            
+            let dir = "asc";
+            const currentHeader = table.getElementsByTagName("th")[n];
+            
+            // Toggle direction based on current state (stored in data attribute)
+            if (currentHeader.getAttribute('data-dir') === 'asc') {
+                dir = "desc";
+            }
+            
+            // Update direction state
+            const headers = table.getElementsByTagName("th");
+            for (let i = 0; i < headers.length; i++) {
+                headers[i].removeAttribute('data-dir');
+            }
+            currentHeader.setAttribute('data-dir', dir);
+            
+            // Sort the rows
+            rows.sort((a, b) => {
+                let aVal = a.getElementsByTagName("td")[n].textContent.trim();
+                let bVal = b.getElementsByTagName("td")[n].textContent.trim();
+                
+                // Convert to numbers for numeric columns
+                if (n === 2 || n === 3 || n === 4 || n === 5) {
+                    aVal = parseFloat(aVal);
+                    bVal = parseFloat(bVal);
+                }
+                
+                // Compare values
+                if (dir === "asc") {
+                    return aVal > bVal ? 1 : -1;
+                } else {
+                    return aVal < bVal ? 1 : -1;
+                }
+            });
+            
+            // Reorder the rows in the tbody and update colors
+            rows.forEach((row, index) => {
+                tbody.appendChild(row);
+                // Update row colors
+                row.style.backgroundColor = index % 2 === 0 ? '#fff' : '#f8f9fa';
+            });
+        }
+
+        // Function to show the selected page and hide others
+        function showPage(pageId) {
+            var pages = ["dataPage", "aboutATSPage", "aboutDevelopmentPage", "aboutMePage"];
+            for (var i = 0; i < pages.length; i++) {
+                var page = document.getElementById(pages[i]);
+                if (pages[i] === pageId) {
+                    page.style.display = "block";
+                } else {
+                    page.style.display = "none";
+                }
+            }
+        }
+
+        // Show the default page (Data) when the page loads
+        window.onload = function () {
+            showPage("dataPage");
+            showSeasonData("2025"); // Show 2025 season by default
+        };
+    </script>
+</body>
+</html> 
