@@ -205,17 +205,23 @@
                 let aVal = a.getElementsByTagName("td")[n].textContent.trim();
                 let bVal = b.getElementsByTagName("td")[n].textContent.trim();
                 
-                // Convert to numbers for numeric columns
-                if (n === 2 || n === 3 || n === 4 || n === 5) {
-                    aVal = parseFloat(aVal);
-                    bVal = parseFloat(bVal);
+                // Convert to numbers for numeric columns (PPG, aTS%, TS%, DIFF, Usage Rate, Team 3PT%, Team 3PA)
+                if (n >= 3 && n <= 9) {  // These are the numeric columns
+                    aVal = parseFloat(aVal) || 0;  // Use 0 if parsing fails
+                    bVal = parseFloat(bVal) || 0;
                 }
                 
                 // Compare values
                 if (dir === "asc") {
-                    return aVal > bVal ? 1 : -1;
+                    if (typeof aVal === 'number') {
+                        return aVal - bVal;  // Numeric comparison
+                    }
+                    return aVal.localeCompare(bVal);  // String comparison
                 } else {
-                    return aVal < bVal ? 1 : -1;
+                    if (typeof aVal === 'number') {
+                        return bVal - aVal;  // Numeric comparison
+                    }
+                    return bVal.localeCompare(aVal);  // String comparison
                 }
             });
             
