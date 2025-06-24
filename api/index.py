@@ -207,7 +207,7 @@ def get_season_data(season_end_year):
 def initialize_data():
     """Initialize data for all seasons with better error handling"""
     global season_data
-    seasons = [2023, 2024]
+    seasons = [2023, 2024, 2025]
     
     for season in seasons:
         try:
