@@ -5,6 +5,7 @@ from basketball_reference_web_scraper.data import OutputType
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestRegressor
 import numpy as np
+from . import utils
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
 
@@ -65,8 +66,11 @@ def get_team_abbreviation(team_name):
     return team_mapping.get(team_name, team_name)
 
 def get_season_data(season_end_year):
-    """Get player statistics for a specific season"""
+    """Get player statistics for a specific season with anti-detection measures"""
     try:
+        # Add delay before making request to avoid rate limiting
+        utils.safe_delay()
+        
         # Get regular season stats
         stats = client.players_season_totals(season_end_year=season_end_year)
         
@@ -198,15 +202,27 @@ def get_season_data(season_end_year):
         return df
         
     except Exception as e:
-        print(f"Error fetching data for season {season_end_year}: {str(e)}")
-        return pd.DataFrame(columns=['Player', 'Team', 'Season', 'PPG', 'aTS%', 'TS%', 'DIFF', 'Usage Rate', 'Team 3PT%', 'Team 3PA'])
+        # Return a placeholder DataFrame with error message
+        return pd.DataFrame(utils.create_error_dataframe(season_end_year, "Data Unavailable"))
 
 def initialize_data():
-    """Initialize data for all seasons"""
+    """Initialize data for all seasons with better error handling"""
     global season_data
     seasons = [2023, 2024, 2025]
+    
     for season in seasons:
-        season_data[str(season)] = get_season_data(season)
+        try:
+            data = get_season_data(season)
+            
+            if data.empty or len(data) == 1 and data.iloc[0]['Player'] == 'Data Unavailable':
+                # Create a more informative placeholder
+                season_data[str(season)] = pd.DataFrame(utils.create_error_dataframe(season, "Basketball Reference Blocked"))
+            else:
+                season_data[str(season)] = data
+                
+        except Exception as e:
+            # Create error placeholder
+            season_data[str(season)] = pd.DataFrame(utils.create_error_dataframe(season, f"Error: {str(e)[:50]}..."))
 
 @app.route('/')
 def index():
