@@ -26,4 +26,4 @@ python3 api/index.py
 ## Deployment
 - Hosted at [adjustedtrueshooting.com](https://www.adjustedtrueshooting.com/)
 - Used GitHub Actions to containerize and push Docker images to DockerHub
-- Deployed with Render via stated CI/CD pipeline
+- Deployed with Azure App Service via automated CI/CD pipeline
