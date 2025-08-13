@@ -8,7 +8,6 @@ def create_session_with_retry():
     """Create a requests session with retry logic and realistic headers"""
     session = requests.Session()
     
-    # Configure retry strategy
     retry_strategy = Retry(
         total=3,
         backoff_factor=1,
@@ -19,7 +18,6 @@ def create_session_with_retry():
     session.mount("http://", adapter)
     session.mount("https://", adapter)
     
-    # Add realistic headers to avoid detection
     session.headers.update({
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',

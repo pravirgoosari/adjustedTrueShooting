@@ -68,7 +68,6 @@ def get_team_abbreviation(team_name):
 def get_season_data(season_end_year):
     """Get player statistics for a specific season with anti-detection measures"""
     try:
-        # Add delay before making request to avoid rate limiting
         utils.safe_delay()
         
         # Get regular season stats
@@ -228,9 +227,8 @@ def initialize_data():
 def index():
     return render_template('index.html', season_data=season_data)
 
-# Initialize data at import time for Vercel
 initialize_data()
 
 if __name__ == '__main__':
-    # Run the Flask app locally
+    # Run the Flask app
     app.run(debug=True) 
