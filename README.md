@@ -21,8 +21,13 @@ A machine learning-powered basketball analytics platform that calculates Adjuste
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-python3 api/index.py
+python3 -m scripts.generate_data
+python3 -m api.index
 ```
+
+Season data is generated before the web process starts and stored in `data/`.
+The production container only loads these precomputed snapshots, keeping cold
+starts fast and avoiding live scraping during requests.
 ## Deployment
 - Hosted at [adjustedtrueshooting.com](https://www.adjustedtrueshooting.com/)
 - Used GitHub Actions to containerize and push Docker images to DockerHub

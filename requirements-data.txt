@@ -1,0 +1,6 @@
+pandas
+basketball-reference-web-scraper
+scikit-learn
+numpy
+requests
+urllib3

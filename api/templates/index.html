@@ -63,7 +63,7 @@
                         </thead>
                         <tbody id="playerTableBody">
                             {% for season in seasons %}
-                            {% for index, row in season_data[season|string].iterrows() %}
+                            {% for row in season_data[season|string] %}
                             <tr class="season-data" data-season="{{ season }}"{% if season != default_season %} style="display: none;"{% endif %}>
                                 <td>{{ row['Player'] }}</td>
                                 <td>{{ row['Team'] }}</td>

@@ -1,0 +1,15 @@
+.git
+.github
+.gitignore
+.DS_Store
+__pycache__/
+*.pyc
+venv/
+README.md
+LICENSE
+requirements.txt
+requirements-data.txt
+scripts/
+tests/
+api/analytics.py
+api/utils.py
