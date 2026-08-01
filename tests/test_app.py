@@ -22,6 +22,15 @@ class AppTestCase(unittest.TestCase):
         self.assertEqual(response.json['default_season'], 2026)
         for season in ('2026', '2025', '2024', '2023'):
             self.assertIn(season, response.json['season_data'])
+            for player in response.json['season_data'][season]:
+                self.assertIn('Position', player)
+                self.assertIn('MPG', player)
+                self.assertIsInstance(player['MPG'], (int, float))
+                self.assertGreaterEqual(player['MPG'], 0)
+                self.assertIn('GP', player)
+                self.assertIsInstance(player['GP'], int)
+                self.assertGreater(player['GP'], 0)
+                self.assertRegex(player['Position'], r'^(PG|SG|SF|PF|C|G|F)(/(PG|SG|SF|PF|C|G|F))*$|^—$')
 
     def test_health_reports_precomputed_data(self):
         response = self.client.get('/health')

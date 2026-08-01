@@ -58,6 +58,25 @@ def get_team_abbreviation(team_name):
     return team_mapping.get(team_name, team_name)
 
 
+def format_positions(positions):
+    """Keep the source's listed positions, using standard short labels."""
+    abbreviations = {
+        'POINT GUARD': 'PG',
+        'SHOOTING GUARD': 'SG',
+        'SMALL FORWARD': 'SF',
+        'POWER FORWARD': 'PF',
+        'CENTER': 'C',
+        'GUARD': 'G',
+        'FORWARD': 'F',
+    }
+    labels = [
+        abbreviations[position.value]
+        for position in positions or []
+        if position is not None and position.value in abbreviations
+    ]
+    return '/'.join(dict.fromkeys(labels)) or '—'
+
+
 def get_season_data(season_end_year):
     """Download and calculate player statistics for one season."""
     utils.safe_delay()
@@ -73,6 +92,7 @@ def get_season_data(season_end_year):
         if name not in player_totals:
             player_totals[name] = {
                 'games': 0,
+                'minutes': 0,
                 'points': 0,
                 'fga': 0,
                 'fta': 0,
@@ -80,6 +100,9 @@ def get_season_data(season_end_year):
             }
         else:
             player_totals[name]['team'] = team
+
+        # Match the listed position to the same source row used for the team.
+        player_totals[name]['position'] = format_positions(player.get('positions'))
 
         if team not in team_stats:
             team_stats[team] = {
@@ -89,6 +112,7 @@ def get_season_data(season_end_year):
             }
 
         player_totals[name]['games'] += player['games_played']
+        player_totals[name]['minutes'] += player['minutes_played']
         player_totals[name]['points'] += player['points']
         player_totals[name]['fga'] += player['attempted_field_goals']
         player_totals[name]['fta'] += player['attempted_free_throws']
@@ -126,9 +150,12 @@ def get_season_data(season_end_year):
         if ts > 0 and usage_rate > 0:
             players_data.append({
                 'Player': name,
+                'Position': totals['position'],
                 'Team': team,
                 'Season': f"{season_end_year - 1}-{str(season_end_year)[2:]}",
                 'PPG': round(points / games, 1),
+                'MPG': totals['minutes'] / games,
+                'GP': games,
                 'TS%': round(ts, 1),
                 'Usage Rate': round(usage_rate, 1),
                 'Team 3PA': team_per_game[team]['3PA'],
@@ -165,6 +192,6 @@ def get_season_data(season_end_year):
     df = df.sort_values(by='PPG', ascending=False)
 
     return df[[
-        'Player', 'Team', 'Season', 'PPG', 'aTS%', 'TS%', 'DIFF',
+        'Player', 'Position', 'Team', 'Season', 'PPG', 'MPG', 'GP', 'aTS%', 'TS%', 'DIFF',
         'Usage Rate', 'Team 3PT%', 'Team 3PA',
     ]]
