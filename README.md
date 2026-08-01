@@ -5,7 +5,8 @@ A machine learning-powered basketball analytics platform that calculates Adjuste
 - Team Spacing Quality (37% influence)
 
 ## Technical Stack
-- Backend: Python/Flask
+- Frontend: SvelteKit, TypeScript
+- Backend/API: Python/Flask
 - ML: scikit-learn Random Forest
 - Data Processing: pandas, numpy
 - Data Source: basketball-reference-web-scraper
@@ -22,8 +23,17 @@ python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 python3 -m scripts.generate_data
+
+cd frontend
+npm install
+npm run build
+cd ..
+
 python3 -m api.index
 ```
+
+For frontend development with hot reload, run `npm run dev` from `frontend/`
+while Flask is running on port 5000. Vite proxies API requests to Flask.
 
 Season data is generated before the web process starts and stored in `data/`.
 The production container only loads these precomputed snapshots, keeping cold

@@ -2,15 +2,17 @@ import json
 import os
 from pathlib import Path
 
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, send_from_directory
 
 from .config import DEFAULT_SEASON, SEASONS
 
 
-app = Flask(__name__, template_folder='templates', static_folder='static')
+app = Flask(__name__, static_folder=None)
 
 DEFAULT_DATA_DIR = Path(__file__).resolve().parents[1] / 'data'
 DATA_DIR = Path(os.environ.get('ATS_DATA_DIR', DEFAULT_DATA_DIR))
+DEFAULT_FRONTEND_DIR = Path(__file__).resolve().parents[1] / 'frontend' / 'build'
+FRONTEND_DIR = Path(os.environ.get('ATS_FRONTEND_DIR', DEFAULT_FRONTEND_DIR))
 
 
 def load_data(data_dir=DATA_DIR):
@@ -31,15 +33,14 @@ def load_data(data_dir=DATA_DIR):
 season_data, data_metadata = load_data()
 
 
-@app.route('/')
-def index():
-    return render_template(
-        'index.html',
-        season_data=season_data,
-        seasons=SEASONS,
-        default_season=DEFAULT_SEASON,
-        data_generated_at=data_metadata['generated_at'],
-    )
+@app.route('/api/data')
+def data():
+    return jsonify({
+        'season_data': season_data,
+        'seasons': list(SEASONS),
+        'default_season': DEFAULT_SEASON,
+        'generated_at': data_metadata['generated_at'],
+    })
 
 
 @app.route('/health')
@@ -49,6 +50,16 @@ def health():
         'generated_at': data_metadata['generated_at'],
         'seasons': list(SEASONS),
     })
+
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def frontend(path):
+    """Serve the SvelteKit static build and its client-side routes."""
+    requested_file = FRONTEND_DIR / path
+    if path and requested_file.is_file():
+        return send_from_directory(FRONTEND_DIR, path)
+    return send_from_directory(FRONTEND_DIR, 'index.html')
 
 
 if __name__ == '__main__':

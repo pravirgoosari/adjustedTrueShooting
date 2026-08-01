@@ -9,5 +9,10 @@ __pycache__/
 data/*.json
 !data/.gitkeep
 
+# SvelteKit
+frontend/node_modules/
+frontend/.svelte-kit/
+frontend/build/
+
 # macOS
 .DS_Store
