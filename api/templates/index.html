@@ -38,9 +38,9 @@
             <div class="season-selector">
                 <span class="season-label">SEASON:</span>
                 <select id="seasonSelect" onchange="showSeasonData(this.value)">
-                    <option value="2025">2025</option>
-                    <option value="2024">2024</option>
-                    <option value="2023">2023</option>
+                    {% for season in seasons %}
+                    <option value="{{ season }}"{% if season == default_season %} selected{% endif %}>{{ season }}</option>
+                    {% endfor %}
                 </select>
             </div>
             <div class="table-container">
@@ -62,8 +62,9 @@
                             </tr>
                         </thead>
                         <tbody id="playerTableBody">
-                            {% for index, row in season_data['2025'].iterrows() %}
-                            <tr class="season-data" data-season="2025">
+                            {% for season in seasons %}
+                            {% for index, row in season_data[season|string].iterrows() %}
+                            <tr class="season-data" data-season="{{ season }}"{% if season != default_season %} style="display: none;"{% endif %}>
                                 <td>{{ row['Player'] }}</td>
                                 <td>{{ row['Team'] }}</td>
                                 <td>{{ row['Season'] }}</td>
@@ -76,33 +77,6 @@
                                 <td>{{ row['Team 3PA'] }}</td>
                             </tr>
                             {% endfor %}
-                            {% for index, row in season_data['2023'].iterrows() %}
-                            <tr class="season-data" data-season="2023" style="display: none;">
-                                <td>{{ row['Player'] }}</td>
-                                <td>{{ row['Team'] }}</td>
-                                <td>{{ row['Season'] }}</td>
-                                <td>{{ row['PPG'] }}</td>
-                                <td>{{ row['aTS%'] }}</td>
-                                <td>{{ row['TS%'] }}</td>
-                                <td>{{ row['DIFF'] }}</td>
-                                <td>{{ row['Usage Rate'] }}</td>
-                                <td>{{ row['Team 3PT%'] }}</td>
-                                <td>{{ row['Team 3PA'] }}</td>
-                            </tr>
-                            {% endfor %}
-                            {% for index, row in season_data['2024'].iterrows() %}
-                            <tr class="season-data" data-season="2024" style="display: none;">
-                                <td>{{ row['Player'] }}</td>
-                                <td>{{ row['Team'] }}</td>
-                                <td>{{ row['Season'] }}</td>
-                                <td>{{ row['PPG'] }}</td>
-                                <td>{{ row['aTS%'] }}</td>
-                                <td>{{ row['TS%'] }}</td>
-                                <td>{{ row['DIFF'] }}</td>
-                                <td>{{ row['Usage Rate'] }}</td>
-                                <td>{{ row['Team 3PT%'] }}</td>
-                                <td>{{ row['Team 3PA'] }}</td>
-                            </tr>
                             {% endfor %}
                         </tbody>
                     </table>
@@ -249,8 +223,8 @@
         // Show the default page (Data) when the page loads
         window.onload = function () {
             showPage("dataPage");
-            showSeasonData("2025"); // Show 2025 season by default
+            showSeasonData(document.getElementById("seasonSelect").value);
         };
     </script>
 </body>
-</html> 
+</html>

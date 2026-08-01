@@ -1,7 +1,6 @@
 import pandas as pd
 from flask import Flask, render_template
 from basketball_reference_web_scraper import client
-from basketball_reference_web_scraper.data import OutputType
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestRegressor
 import numpy as np
@@ -16,6 +15,8 @@ pd.set_option('display.expand_frame_repr', False)
 
 # Global variable to store season data
 season_data = {}
+SEASONS = (2026, 2025, 2024, 2023)
+DEFAULT_SEASON = SEASONS[0]
 
 def calculate_ts_percentage(points, fga, fta):
     """Calculate True Shooting Percentage"""
@@ -201,15 +202,15 @@ def get_season_data(season_end_year):
         return df
         
     except Exception as e:
+        app.logger.exception("Failed to load season data for %s", season_end_year)
         # Return a placeholder DataFrame with error message
         return pd.DataFrame(utils.create_error_dataframe(season_end_year, "Data Unavailable"))
 
 def initialize_data():
     """Initialize data for all seasons with better error handling"""
     global season_data
-    seasons = [2023, 2024, 2025]
-    
-    for season in seasons:
+
+    for season in SEASONS:
         try:
             data = get_season_data(season)
             
@@ -220,15 +221,21 @@ def initialize_data():
                 season_data[str(season)] = data
                 
         except Exception as e:
+            app.logger.exception("Failed to initialize season %s", season)
             # Create error placeholder
             season_data[str(season)] = pd.DataFrame(utils.create_error_dataframe(season, f"Error: {str(e)[:50]}..."))
 
 @app.route('/')
 def index():
-    return render_template('index.html', season_data=season_data)
+    return render_template(
+        'index.html',
+        season_data=season_data,
+        seasons=SEASONS,
+        default_season=DEFAULT_SEASON,
+    )
 
 initialize_data()
 
 if __name__ == '__main__':
     # Run the Flask app
-    app.run(debug=True) 
+    app.run(debug=True)
