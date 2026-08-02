@@ -1,6 +1,7 @@
 Flask
 pandas
 basketball-reference-web-scraper
+lxml
 gunicorn
 scikit-learn
 numpy

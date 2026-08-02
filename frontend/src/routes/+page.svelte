@@ -19,8 +19,10 @@
   };
   type SeasonResponse = {
     season_data: Record<string, PlayerRow[]>;
+    playoff_data: Record<string, PlayerRow[]>;
     seasons: number[];
     default_season: number;
+    default_season_type: string;
     generated_at: string;
   };
   const pages = [
@@ -90,7 +92,14 @@
   let activePage = $state("data");
   let seasons = $state<number[]>([]);
   let selectedSeason = $state("2026");
+  let selectedType = $state("regular");
+  const seasonTypes = [
+    { value: "regular", label: "Regular Season" },
+    { value: "playoffs", label: "Playoffs" },
+  ];
+  const selectedTypeLabel = $derived(selectedType === "playoffs" ? "Playoffs" : "Regular Season");
   let seasonData = $state<Record<string, PlayerRow[]>>({});
+  let playoffData = $state<Record<string, PlayerRow[]>>({});
   let generatedAt = $state("");
   let loading = $state(true);
   let error = $state("");
@@ -123,7 +132,9 @@
   let sortColumn = $state(columns.findIndex((column) => column.key === "PPG"));
   let sortDirection = $state<"asc" | "desc">("desc");
   let tableScroll = $state<HTMLDivElement>();
-  const seasonRows = $derived(seasonData[selectedSeason] ?? []);
+  const seasonRows = $derived(
+    (selectedType === "playoffs" ? playoffData : seasonData)[selectedSeason] ?? [],
+  );
   const teams = $derived(
     [...new Set(seasonRows.map((row) => row.Team))].sort(),
   );
@@ -155,7 +166,7 @@
   const topScorer = $derived([...seasonRows].sort((a, b) => b.PPG - a.PPG)[0]);
   const efficiencyLeader = $derived(
     [...seasonRows]
-      .filter((row) => row.PPG >= 20 && row.GP >= 5)
+      .filter((row) => row.PPG >= 20 && (selectedType === "playoffs" || row.GP >= 5))
       .sort((a, b) => b["aTS%"] - a["aTS%"])[0],
   );
   const updatedLabel = $derived(
@@ -178,6 +189,8 @@
       seasons = data.seasons;
       selectedSeason = String(data.default_season);
       seasonData = data.season_data;
+      playoffData = data.playoff_data;
+      selectedType = data.default_season_type;
       generatedAt = data.generated_at;
     } catch {
       error = "The season data couldn’t be loaded. Please try again.";
@@ -286,7 +299,7 @@
     <section class="snapshot" aria-label="Season overview">
       <div class="snapshot-context">
         <span class="eyebrow">The season at a glance</span><strong
-          >{seasonLabel(selectedSeason)} <span>NBA</span></strong
+          >{seasonLabel(selectedSeason)} <span>{selectedTypeLabel}</span></strong
         >
       </div>
       <div class="snapshot-stat">
@@ -328,7 +341,8 @@
             Player Explorer<span class="count-badge">{seasonRows.length}</span>
           </h2>
         </div>
-        <div class="season-control">
+        <div class="dataset-controls">
+          <div class="season-control">
           <label for="seasonSelect">Season</label><Dropdown
             id="seasonSelect"
             label="Season"
@@ -338,6 +352,18 @@
             align="right"
             options={seasons.map(season => ({ value: String(season), label: seasonLabel(season) }))}
           />
+          </div>
+          <div class="season-control type-control">
+            <label for="typeSelect">Type</label><Dropdown
+              id="typeSelect"
+              label="Type"
+              bind:value={selectedType}
+              onchange={changeSeason}
+              disabled={loading}
+              align="right"
+              options={seasonTypes}
+            />
+          </div>
         </div>
       </div>
       <p class="mobile-scroll-hint">Swipe the table for more stats →</p>
@@ -479,6 +505,11 @@
                     ></td
                   ></tr
                 >
+              {:else if !seasonRows.length}<tr
+                  ><td colspan={columns.length + 1} class="table-message"
+                    >No {selectedTypeLabel.toLowerCase()} data available for {seasonLabel(selectedSeason)}.</td
+                  ></tr
+                >
               {:else if !visibleRows.length}<tr
                   ><td colspan={columns.length + 1} class="table-message"
                     ><strong>No players found.</strong>
@@ -494,7 +525,7 @@
                   ></tr
                 >
               {:else}{#each visibleRows as row, index}
-                  <tr class="season-data" data-season={selectedSeason}>
+                  <tr class="season-data" data-season={selectedSeason} data-season-type={selectedType}>
                     <td class="rank-cell"
                       >{String(index + 1).padStart(2, "0")}</td
                     >
@@ -535,7 +566,7 @@
           <span aria-live="polite"
             >{visibleRows.length} of {seasonRows.length} Players<span
               class="footer-season"
-            >: {seasonLabel(selectedSeason)} Season</span
+            >: {seasonLabel(selectedSeason)} {selectedTypeLabel}</span
             ></span
           ><span>Click a Column to Sort <span aria-hidden="true">↕</span></span>
         </div>

@@ -1,10 +1,14 @@
 import numpy as np
 import pandas as pd
 from basketball_reference_web_scraper import client
+from basketball_reference_web_scraper.html import PlayerSeasonTotalTable
+from basketball_reference_web_scraper.parser_service import ParserService
+from lxml import html
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.preprocessing import StandardScaler
 
 from . import utils
+from .config import SEASON_TYPES
 
 
 def calculate_ts_percentage(points, fga, fta):
@@ -77,10 +81,45 @@ def format_positions(positions):
     return '/'.join(dict.fromkeys(labels)) or '—'
 
 
-def get_season_data(season_end_year):
-    """Download and calculate player statistics for one season."""
+def parse_playoff_totals(content):
+    """Parse playoff totals with the same field mapping as regular-season totals."""
+    document = html.fromstring(content)
+    # Playoff pages still use legacy field names; regular-season pages use these
+    # newer names expected by the scraper. Accept either schema.
+    aliases = {'player': 'name_display', 'team_id': 'team_name_abbr',
+               'g': 'games', 'gs': 'games_started'}
+    for cell in document.xpath('//table[@id="totals_stats"]//*[@data-stat]'):
+        field = cell.get('data-stat')
+        if field in aliases:
+            cell.set('data-stat', aliases[field])
+    table = PlayerSeasonTotalTable(html=document)
+    rows = [row for row in table.rows if row.team_abbreviation != 'TOT']
+    if not rows:
+        raise ValueError('Playoff totals table is missing or empty')
+    parsed = ParserService().parse_player_season_totals(totals=rows)
+    if any(not row['name'] or row['team'] is None or row['games_played'] <= 0 for row in parsed):
+        raise ValueError('Invalid player, team, or games in playoff totals')
+    return parsed
+
+
+def get_playoff_totals(season_end_year):
+    url = f'https://www.basketball-reference.com/playoffs/NBA_{season_end_year}_totals.html'
+    with utils.create_session_with_retry() as session:
+        response = session.get(url, timeout=60)
+        response.raise_for_status()
+        return parse_playoff_totals(response.content)
+
+
+def get_season_data(season_end_year, season_type='regular'):
+    """Calculate aTS% within one season and competition type, never mixing them."""
+    if season_type not in SEASON_TYPES:
+        raise ValueError(f'Unknown season type: {season_type}')
     utils.safe_delay()
-    stats = client.players_season_totals(season_end_year=season_end_year)
+    stats = (
+        get_playoff_totals(season_end_year)
+        if season_type == 'playoffs'
+        else client.players_season_totals(season_end_year=season_end_year)
+    )
 
     player_totals = {}
     team_stats = {}

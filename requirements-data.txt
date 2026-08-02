@@ -1,5 +1,6 @@
 pandas
 basketball-reference-web-scraper
+lxml
 scikit-learn
 numpy
 requests
