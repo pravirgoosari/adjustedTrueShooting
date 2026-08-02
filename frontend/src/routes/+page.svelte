@@ -246,6 +246,14 @@
   >
 {/snippet}
 
+{#snippet sortArrow(direction: "asc" | "desc" | "both" = "both")}
+  <svg width="12" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+    <path d="M12 4v16" />
+    {#if direction !== "desc"}<path d="m7 9 5-5 5 5" />{/if}
+    {#if direction !== "asc"}<path d="m7 15 5 5 5-5" />{/if}
+  </svg>
+{/snippet}
+
 <a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="header-inner">
@@ -292,7 +300,7 @@
           /> Explore adjusted True Shooting % below.
         </p>
         <button class="text-link" onclick={() => (activePage = "method")}
-          >Get to know aTS% <span aria-hidden="true">↗</span></button
+          >Get to know aTS% {@render arrow()}</button
         >
       </div>
     </section>
@@ -366,7 +374,7 @@
           </div>
         </div>
       </div>
-      <p class="mobile-scroll-hint">Swipe the table for more stats →</p>
+      <p class="mobile-scroll-hint">Swipe the table for more stats <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true" focusable="false"><path d="M4 12h16m-6-6 6 6-6 6" /></svg></p>
       <div class="data-panel">
         <div class="table-toolbar">
           <label class="search-box"
@@ -481,11 +489,7 @@
                         class:sort-active={sortColumn === index}
                         class="sort-indicator"
                         aria-hidden="true"
-                        >{sortColumn === index
-                          ? sortDirection === "asc"
-                            ? "↑"
-                            : "↓"
-                          : "↕"}</span
+                        >{@render sortArrow(sortColumn === index ? sortDirection : "both")}</span
                       ></button
                     ></th
                   >{/each}</tr
@@ -520,7 +524,7 @@
                         search = "";
                         team = "all";
                         statFilters = [];
-                      }}>Clear filters ↗</button
+                      }}>Clear filters {@render arrow()}</button
                     ></td
                   ></tr
                 >
@@ -568,7 +572,7 @@
               class="footer-season"
             >: {seasonLabel(selectedSeason)} {selectedTypeLabel}</span
             ></span
-          ><span>Click a Column to Sort <span aria-hidden="true">↕</span></span>
+          ><span>Click a Column to Sort <span aria-hidden="true">{@render sortArrow()}</span></span>
         </div>
       </div>
       <div class="data-note">
@@ -642,7 +646,7 @@
           </p>
         </div>
         <button class="primary-button" onclick={() => (activePage = "data")}
-          >Explore the Numbers <span aria-hidden="true">↗</span></button
+          >Explore the Numbers {@render arrow()}</button
         >
       </article>
     </div>

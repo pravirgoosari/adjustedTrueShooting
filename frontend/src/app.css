@@ -612,7 +612,8 @@ th button:hover {
   color: var(--accent);
 }
 .sort-indicator {
-  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
   color: #bfc3b4;
 }
 .sort-active {
@@ -727,6 +728,10 @@ tbody tr:hover td.metric-column {
 }
 .table-footer > span:last-child span {
   margin-left: 8px;
+}
+.table-footer svg,
+.mobile-scroll-hint svg {
+  vertical-align: middle;
 }
 .data-note {
   display: flex;
